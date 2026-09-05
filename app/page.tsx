@@ -5,9 +5,9 @@ import { useState, TouchEvent } from 'react';
 import { Professor, HorarioDisponivel, Usuario } from '../types';
 
 const PROFESSORES_MOCK: Professor[] = [
-  { id: '1', nome: 'Prof. Ana Silva', materia: 'Matemática', foto: 'https://i.pravatar.cc/150?img=47' },
-  { id: '2', nome: 'Prof. Carlos Eduardo', materia: 'Português', foto: 'https://i.pravatar.cc/150?img=12' },
-  { id: '3', nome: 'Prof. Roberto Melo', materia: 'Física', foto: 'https://i.pravatar.cc/150?img=33' },
+  { id: '1', nome: 'Prof. Marcus', materia: 'Matemática', foto: 'https://i.pravatar.cc/150?img=47' },
+  { id: '2', nome: 'Prof. Raphael', materia: 'Português', foto: 'https://i.pravatar.cc/150?img=12' },
+  { id: '3', nome: 'Prof. Fernanda', materia: 'Física', foto: 'https://i.pravatar.cc/150?img=33' },
 ];
 
 const HORARIOS_MOCK: HorarioDisponivel[] = [
