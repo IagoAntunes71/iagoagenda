@@ -2,12 +2,12 @@
 'use client';
 
 import { useState, TouchEvent } from 'react';
-import { Professor, HorarioDisponivel, Usuario } from '../types';
+import { Professor, HorarioDisponivel } from '../types';
 
 const PROFESSORES_MOCK: Professor[] = [
-  { id: '1', nome: 'Prof. Marcus', materia: 'Matemática', foto: 'https://i.pravatar.cc/150?img=47' },
-  { id: '2', nome: 'Prof. Raphael', materia: 'Português', foto: 'https://i.pravatar.cc/150?img=12' },
-  { id: '3', nome: 'Prof. Fernanda', materia: 'Física', foto: 'https://i.pravatar.cc/150?img=33' },
+  { id: '1', nome: 'Prof. Ana Silva', materia: 'Matemática', foto: 'https://i.pravatar.cc/150?img=47' },
+  { id: '2', nome: 'Prof. Carlos Eduardo', materia: 'Português', foto: 'https://i.pravatar.cc/150?img=12' },
+  { id: '3', nome: 'Prof. Roberto Melo', materia: 'Física', foto: 'https://i.pravatar.cc/150?img=33' },
 ];
 
 const HORARIOS_MOCK: HorarioDisponivel[] = [
@@ -18,7 +18,14 @@ const HORARIOS_MOCK: HorarioDisponivel[] = [
 ];
 
 export default function PaginaAgendamento() {
+  // ESTADOS DE AUTENTICAÇÃO E DADOS DO USUÁRIO
   const [autenticado, setAutenticado] = useState<boolean>(false);
+  const [nomeResponsavel, setNomeResponsavel] = useState<string>('');
+  const [nomeAluno, setNomeAluno] = useState<string>('');
+  const [senha, setSenha] = useState<string>('');
+  const [erroLogin, setErroLogin] = useState<string>('');
+
+  // ESTADOS DO FLUXO DE AGENDAMENTO
   const [materiaSelecionada, setMateriaSelecionada] = useState<string>('Matemática');
   const [professorSelecionado, setProfessorSelecionado] = useState<string>('');
   const [horarioSelecionado, setHorarioSelecionado] = useState<string>('');
@@ -30,20 +37,34 @@ export default function PaginaAgendamento() {
 
   const materias = ['Matemática', 'Português', 'Física'];
 
-  // REQUISITO IHC: Feedback Tátil/Vibração (Haptic Feedback)
+  // REQUISITO IHC: Feedback Tátil/Vibração
   const emitirFeedbackTatil = () => {
     if (typeof window !== 'undefined' && 'vibrate' in navigator) {
-      navigator.vibrate(50); // Vibra o celular por 50ms ao interagir
+      navigator.vibrate(50);
     }
   };
 
-  const simularAutenticacaoBiometrica = () => {
+  // LÓGICA DE LOGIN COM VALIDAÇÃO E BIOMETRIA
+  const handleLogin = (e: React.FormEvent) => {
+    e.preventDefault();
     emitirFeedbackTatil();
-    alert('Verificando Biometria / Face ID...');
+
+    if (!nomeResponsavel.trim() || !nomeAluno.trim()) {
+      setErroLogin('Por favor, preencha o nome do responsável e do aluno.');
+      return;
+    }
+
+    if (senha !== '1234') {
+      setErroLogin('Senha incorreta! Use a senha padrão: 1234');
+      return;
+    }
+
+    setErroLogin('');
+    alert(`Autenticando ${nomeResponsavel} via Biometria / Face ID...`);
     setAutenticado(true);
   };
 
-  // REQUISITO IHC: Lógica de Detecção do Gesto SWIPE (Deslizar o dedo)
+  // REQUISITO IHC: Lógica do Gesto SWIPE
   const handleTouchStart = (e: TouchEvent) => {
     setTouchStart(e.targetTouches[0].clientX);
   };
@@ -78,6 +99,8 @@ export default function PaginaAgendamento() {
     setTouchEnd(0);
   };
 
+  const profObj = PROFESSORES_MOCK.find((p) => p.id === professorSelecionado);
+
   return (
       <main className="max-w-md mx-auto min-h-screen bg-slate-100 p-4 text-slate-900 flex flex-col justify-between">
         <div>
@@ -89,27 +112,81 @@ export default function PaginaAgendamento() {
           </header>
 
           {!autenticado ? (
-              <div className="bg-white p-6 rounded-2xl shadow-sm text-center my-8 border border-slate-200">
-                <div className="w-16 h-16 bg-blue-100 text-blue-700 rounded-full flex items-center justify-center mx-auto mb-4 text-2xl font-bold">
+              /* FORMULÁRIO DE LOGIN E BIOMETRIA */
+              <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 my-4">
+                <div className="w-14 h-14 bg-blue-100 text-blue-700 rounded-full flex items-center justify-center mx-auto mb-3 text-2xl font-bold">
                   👤
                 </div>
-                <h2 className="text-lg font-bold mb-1">Bem-vindo(a)!</h2>
-                <p className="text-sm text-slate-600 mb-6">
-                  Acesse sua conta para agendar a aula do seu filho sem precisar aguardar o atendimento.
+                <h2 className="text-lg font-bold text-center mb-1">Acessar Conta</h2>
+                <p className="text-xs text-slate-500 text-center mb-5">
+                  Informe os dados do aluno para validar a entrada.
                 </p>
-                <button
-                    onClick={simularAutenticacaoBiometrica}
-                    className="w-full h-14 bg-blue-700 hover:bg-blue-800 text-white font-bold rounded-xl shadow-md transition-all active:scale-95 flex items-center justify-center gap-2"
-                    aria-label="Autenticar usando Biometria ou Face ID"
-                >
-                  🔒 Entrar com Biometria / Face ID
-                </button>
+
+                <form onSubmit={handleLogin} className="space-y-4">
+                  <div>
+                    <label className="block text-xs font-bold text-slate-700 mb-1">
+                      Nome do Responsável
+                    </label>
+                    <input
+                        type="text"
+                        placeholder="Ex: Mariana Costa"
+                        value={nomeResponsavel}
+                        onChange={(e) => setNomeResponsavel(e.target.value)}
+                        className="w-full h-12 px-3 text-sm bg-slate-50 border border-slate-300 rounded-xl focus:outline-none focus:border-blue-600"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-bold text-slate-700 mb-1">
+                      Nome do Aluno
+                    </label>
+                    <input
+                        type="text"
+                        placeholder="Ex: Lucas Costa"
+                        value={nomeAluno}
+                        onChange={(e) => setNomeAluno(e.target.value)}
+                        className="w-full h-12 px-3 text-sm bg-slate-50 border border-slate-300 rounded-xl focus:outline-none focus:border-blue-600"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-bold text-slate-700 mb-1">
+                      Senha (Padrão: 1234)
+                    </label>
+                    <input
+                        type="password"
+                        placeholder="Digite 1234"
+                        value={senha}
+                        onChange={(e) => setSenha(e.target.value)}
+                        className="w-full h-12 px-3 text-sm bg-slate-50 border border-slate-300 rounded-xl focus:outline-none focus:border-blue-600"
+                    />
+                  </div>
+
+                  {erroLogin && (
+                      <p className="text-xs text-red-600 font-semibold text-center mt-1">
+                        {erroLogin}
+                      </p>
+                  )}
+
+                  <button
+                      type="submit"
+                      className="w-full h-14 bg-blue-700 hover:bg-blue-800 text-white font-bold rounded-xl shadow-md transition-all active:scale-95 flex items-center justify-center gap-2 mt-4 text-sm"
+                      aria-label="Entrar com Biometria ou Face ID"
+                  >
+                    🔒 Entrar com Biometria / Face ID
+                  </button>
+                </form>
               </div>
           ) : (
               <div>
+                {/* EXIBIÇÃO DOS DADOS DIGITADOS NO LOGIN */}
                 <div className="bg-blue-50 border border-blue-200 p-3 rounded-xl mb-6">
-                  <p className="text-xs text-blue-800 font-semibold">Responsável: Mariana Costa</p>
-                  <p className="text-xs text-blue-600">Aluno: Lucas Costa</p>
+                  <p className="text-xs text-blue-800 font-semibold">
+                    Responsável: <span className="font-bold">{nomeResponsavel}</span>
+                  </p>
+                  <p className="text-xs text-blue-600">
+                    Aluno: <span className="font-bold">{nomeAluno}</span>
+                  </p>
                 </div>
 
                 {agendadoSucesso ? (
@@ -117,8 +194,21 @@ export default function PaginaAgendamento() {
                       <span className="text-4xl">🎉</span>
                       <h2 className="text-xl font-bold text-green-900 mt-2">Aula Agendada!</h2>
                       <p className="text-sm text-green-800 mt-2">
-                        A aula de <strong>{materiaSelecionada}</strong> com o professor foi confirmada para o próximo domingo às <strong>{horarioSelecionado}</strong>.
+                        A aula de <strong>{materiaSelecionada}</strong> com o {profObj?.nome} para o aluno <strong>{nomeAluno}</strong> foi confirmada para o próximo domingo às <strong>{horarioSelecionado}</strong>.
                       </p>
+
+                      {/* BOTÃO WHATSAPP */}
+                      <a
+                          href={`https://wa.me/5511999999999?text=${encodeURIComponent(
+                              `Olá! Confirmando agendamento:\n- Responsável: ${nomeResponsavel}\n- Aluno: ${nomeAluno}\n- Matéria: ${materiaSelecionada}\n- Horário: Domingo às ${horarioSelecionado}`
+                          )}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="mt-4 flex items-center justify-center gap-2 w-full h-12 bg-green-600 hover:bg-green-700 text-white font-bold rounded-xl shadow-md transition-all text-xs"
+                      >
+                        📱 Notificar Professor via WhatsApp
+                      </a>
+
                       <button
                           onClick={() => {
                             emitirFeedbackTatil();
@@ -126,14 +216,14 @@ export default function PaginaAgendamento() {
                             setHorarioSelecionado('');
                             setProfessorSelecionado('');
                           }}
-                          className="mt-6 text-sm font-bold text-blue-700 underline"
+                          className="mt-4 text-xs font-bold text-blue-700 underline block mx-auto"
                       >
                         Fazer outro agendamento
                       </button>
                     </div>
                 ) : (
                     <>
-                      {/* ÁREA COM GESTO DE SWIPE IMPLEMENTADO */}
+                      {/* SEÇÃO 1: MATÉRIA (SWIPE) */}
                       <section className="mb-6">
                         <div className="flex justify-between items-center mb-2">
                           <h2 className="text-sm font-bold text-slate-700 uppercase tracking-wide">
@@ -168,6 +258,7 @@ export default function PaginaAgendamento() {
                         </div>
                       </section>
 
+                      {/* SEÇÃO 2: PROFESSOR */}
                       <section className="mb-6">
                         <h2 className="text-sm font-bold text-slate-700 uppercase tracking-wide mb-3">
                           2. Professores de {materiaSelecionada}
@@ -192,6 +283,7 @@ export default function PaginaAgendamento() {
                         </div>
                       </section>
 
+                      {/* SEÇÃO 3: HORÁRIOS */}
                       {professorSelecionado && (
                           <section className="mb-6">
                             <h2 className="text-sm font-bold text-slate-700 uppercase tracking-wide mb-3">
@@ -221,6 +313,7 @@ export default function PaginaAgendamento() {
                           </section>
                       )}
 
+                      {/* BOTÃO DE CONFIRMAÇÃO */}
                       {horarioSelecionado && (
                           <button
                               onClick={() => {
