@@ -5,7 +5,9 @@ export interface Professor {
     id: string;          // Identificador único (ex: '1')
     nome: string;        // Nome do professor
     materia: string;     // Disciplina
+    presencial: string[];     // Unidades Presenciais
     foto: string;        // Foto de perfil
+    whatsapp: string;
 }
 
 // DEFINIÇÃO: Interface do Horário (Controla disponibilidade de agendamento em domingos/feriados)

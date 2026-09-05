@@ -5,9 +5,9 @@ import { useState, TouchEvent } from 'react';
 import { Professor, HorarioDisponivel } from '../types';
 
 const PROFESSORES_MOCK: Professor[] = [
-  { id: '1', nome: 'Prof. Daiane', materia: 'Matemática', foto: 'https://i.pravatar.cc/150?img=47' },
-  { id: '2', nome: 'Prof. Zaira', materia: 'Português', foto: 'https://i.pravatar.cc/150?img=12' },
-  { id: '3', nome: 'Prof. Emilly', materia: 'Física', foto: 'https://i.pravatar.cc/150?img=33' },
+  { id: '1', nome: 'Prof. Daiane', materia: 'Matemática', presencial: ['Horto', 'Itaigara'] , foto: 'https://i.pravatar.cc/150?img=47' , whatsapp: '557186158824' },
+  { id: '2', nome: 'Prof. Zaira', materia: 'Português', presencial: ['Alphaville', 'Imbui'] , foto: 'https://i.pravatar.cc/150?img=12' , whatsapp: '557187248732' },
+  { id: '3', nome: 'Prof. Emilly', materia: 'Física', presencial: ['Graça', 'Horto'], foto: 'https://unavatar.io/whatsapp/phone:557184512731' , whatsapp: '557184512731' },
 ];
 
 const HORARIOS_MOCK: HorarioDisponivel[] = [
@@ -26,6 +26,7 @@ export default function PaginaAgendamento() {
   const [erroLogin, setErroLogin] = useState<string>('');
 
   // ESTADOS DO FLUXO DE AGENDAMENTO
+  const [unidadeSelecionada, setUnidadeSelecionada] = useState<string>('Horto');
   const [materiaSelecionada, setMateriaSelecionada] = useState<string>('Matemática');
   const [professorSelecionado, setProfessorSelecionado] = useState<string>('');
   const [horarioSelecionado, setHorarioSelecionado] = useState<string>('');
@@ -35,6 +36,7 @@ export default function PaginaAgendamento() {
   const [touchStart, setTouchStart] = useState<number>(0);
   const [touchEnd, setTouchEnd] = useState<number>(0);
 
+  const unidades = ['Horto', 'Itaigara', 'Alphaville', 'Imbuí', 'Graça'];
   const materias = ['Matemática', 'Português', 'Física'];
 
   // REQUISITO IHC: Feedback Tátil/Vibração
@@ -79,18 +81,18 @@ export default function PaginaAgendamento() {
     const isLeftSwipe = distance > 50;
     const isRightSwipe = distance < -50;
 
-    const currentIndex = materias.indexOf(materiaSelecionada);
+    const currentIndex = unidades.indexOf(unidadeSelecionada);
 
-    if (isLeftSwipe && currentIndex < materias.length - 1) {
+    if (isLeftSwipe && currentIndex < unidades.length - 1) {
       emitirFeedbackTatil();
-      setMateriaSelecionada(materias[currentIndex + 1]);
+      setUnidadeSelecionada(unidades[currentIndex + 1]);
       setProfessorSelecionado('');
       setHorarioSelecionado('');
     }
 
     if (isRightSwipe && currentIndex > 0) {
       emitirFeedbackTatil();
-      setMateriaSelecionada(materias[currentIndex - 1]);
+      setUnidadeSelecionada(unidades[currentIndex - 1]);
       setProfessorSelecionado('');
       setHorarioSelecionado('');
     }
@@ -105,7 +107,7 @@ export default function PaginaAgendamento() {
       <main className="max-w-md mx-auto min-h-screen bg-slate-100 p-4 text-slate-900 flex flex-col justify-between">
         <div>
           <header className="mb-6 text-center border-b pb-4 border-slate-200">
-            <h1 className="text-2xl font-extrabold text-blue-900">IagoAgenda</h1>
+            <h1 className="text-2xl font-extrabold text-gray-950">Iago Agenda</h1>
             <p className="text-xs text-slate-600 font-medium mt-1">
               Atendimento Automático de Finais de Semana & Feriados
             </p>
@@ -194,13 +196,13 @@ export default function PaginaAgendamento() {
                       <span className="text-4xl">🎉</span>
                       <h2 className="text-xl font-bold text-green-900 mt-2">Aula Agendada!</h2>
                       <p className="text-sm text-green-800 mt-2">
-                        A aula de <strong>{materiaSelecionada}</strong> com o {profObj?.nome} para o aluno <strong>{nomeAluno}</strong> foi confirmada para o próximo domingo às <strong>{horarioSelecionado}</strong>.
+                        A aula de <strong>{materiaSelecionada}</strong> na unidade <strong>{unidadeSelecionada}</strong> com o {profObj?.nome} para o aluno <strong>{nomeAluno}</strong> foi confirmada para o próximo domingo às <strong>{horarioSelecionado}</strong>.
                       </p>
 
                       {/* BOTÃO WHATSAPP */}
                       <a
-                          href={`https://wa.me/5571999043674?text=${encodeURIComponent(
-                              `Olá! Confirmando agendamento:\n- Responsável: ${nomeResponsavel}\n- Aluno: ${nomeAluno}\n- Matéria: ${materiaSelecionada}\n- Horário: Domingo às ${horarioSelecionado}`
+                          href={`https://wa.me/${profObj?.whatsapp || '5571999043674'}?text=${encodeURIComponent(
+                              `Olá ${profObj?.nome}! Confirmando agendamento:\n- Responsável: ${nomeResponsavel}\n- Aluno: ${nomeAluno}\n- Unidade: ${unidadeSelecionada}\n- Matéria: ${materiaSelecionada}\n- Horário: Domingo às ${horarioSelecionado}`
                           )}`}
                           target="_blank"
                           rel="noopener noreferrer"
@@ -223,6 +225,41 @@ export default function PaginaAgendamento() {
                     </div>
                 ) : (
                     <>
+                      {/* SEÇÃO 1: UNIDADE PRESENCIAL (SWIPE) */}
+                      <section className="mb-6">
+                        <div className="flex justify-between items-center mb-2">
+                          <h2 className="text-sm font-bold text-slate-700 uppercase tracking-wide">
+                            1. UNIDADE (Deslize 👈👉)
+                          </h2>
+                        </div>
+
+                        <div
+                            onTouchStart={handleTouchStart}
+                            onTouchMove={handleTouchMove}
+                            onTouchEnd={handleTouchEnd}
+                            className="flex gap-2 p-1 bg-slate-200 rounded-2xl select-none"
+                        >
+                          {unidades.map((uni) => (
+                              <button
+                                  key={uni}
+                                  onClick={() => {
+                                    emitirFeedbackTatil();
+                                    setUnidadeSelecionada(uni);
+                                    setProfessorSelecionado('');
+                                    setHorarioSelecionado('');
+                                  }}
+                                  className={`flex-1 h-12 rounded-xl text-xs font-bold transition-all
+                          ${unidadeSelecionada === uni
+                                      ? 'bg-blue-800 text-white shadow-md scale-105'
+                                      : 'bg-transparent text-slate-700 hover:bg-slate-300'}`}
+                                  aria-label={`Selecionar unidade ${uni}`}
+                              >
+                                {uni}
+                              </button>
+                          ))}
+                        </div>
+                      </section>
+
                       {/* SEÇÃO 1: MATÉRIA (SWIPE) */}
                       <section className="mb-6">
                         <div className="flex justify-between items-center mb-2">
