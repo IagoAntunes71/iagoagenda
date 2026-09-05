@@ -5,9 +5,9 @@ import { useState, TouchEvent } from 'react';
 import { Professor, HorarioDisponivel } from '../types';
 
 const PROFESSORES_MOCK: Professor[] = [
-  { id: '1', nome: 'Prof. Ana Silva', materia: 'Matemática', foto: 'https://i.pravatar.cc/150?img=47' },
-  { id: '2', nome: 'Prof. Carlos Eduardo', materia: 'Português', foto: 'https://i.pravatar.cc/150?img=12' },
-  { id: '3', nome: 'Prof. Roberto Melo', materia: 'Física', foto: 'https://i.pravatar.cc/150?img=33' },
+  { id: '1', nome: 'Prof. Daiane', materia: 'Matemática', foto: 'https://i.pravatar.cc/150?img=47' },
+  { id: '2', nome: 'Prof. Zaira', materia: 'Português', foto: 'https://i.pravatar.cc/150?img=12' },
+  { id: '3', nome: 'Prof. Emilly', materia: 'Física', foto: 'https://i.pravatar.cc/150?img=33' },
 ];
 
 const HORARIOS_MOCK: HorarioDisponivel[] = [
@@ -55,7 +55,7 @@ export default function PaginaAgendamento() {
     }
 
     if (senha !== '1234') {
-      setErroLogin('Senha incorreta! Use a senha padrão: 1234');
+      setErroLogin('Senha incorreta! Use a senha padrão!');
       return;
     }
 
@@ -129,7 +129,7 @@ export default function PaginaAgendamento() {
                     </label>
                     <input
                         type="text"
-                        placeholder="Ex: Mariana Costa"
+                        placeholder="Ex: Jubiscreide"
                         value={nomeResponsavel}
                         onChange={(e) => setNomeResponsavel(e.target.value)}
                         className="w-full h-12 px-3 text-sm bg-slate-50 border border-slate-300 rounded-xl focus:outline-none focus:border-blue-600"
@@ -142,7 +142,7 @@ export default function PaginaAgendamento() {
                     </label>
                     <input
                         type="text"
-                        placeholder="Ex: Lucas Costa"
+                        placeholder="Ex: Vanderleison"
                         value={nomeAluno}
                         onChange={(e) => setNomeAluno(e.target.value)}
                         className="w-full h-12 px-3 text-sm bg-slate-50 border border-slate-300 rounded-xl focus:outline-none focus:border-blue-600"
@@ -199,7 +199,7 @@ export default function PaginaAgendamento() {
 
                       {/* BOTÃO WHATSAPP */}
                       <a
-                          href={`https://wa.me/5511999999999?text=${encodeURIComponent(
+                          href={`https://wa.me/5571999043674?text=${encodeURIComponent(
                               `Olá! Confirmando agendamento:\n- Responsável: ${nomeResponsavel}\n- Aluno: ${nomeAluno}\n- Matéria: ${materiaSelecionada}\n- Horário: Domingo às ${horarioSelecionado}`
                           )}`}
                           target="_blank"
